@@ -1,0 +1,550 @@
+
+let color = "dodgerblue";
+let grid_height = 20;
+let grid_width = 20;
+let generation = 0;
+let gen_limit = 100;
+let grid_width_limit = 20;
+let grid_height_limit = 20;
+let simulation_interval = null;
+let running = 0;
+let count = 0;
+
+function draw_grid_boundary(_for="on_sim", id=-1) {
+
+    let element_initial = "";
+    let ghl = -1;
+    let gwl = -1;
+
+    if (_for == "on_sim") {
+        element_initial = ".cell_";
+        ghl = grid_height_limit;
+        gwl = grid_width_limit;
+    }
+    else if (_for == "on_saved") {
+        element_initial = "." + id + "_";
+        ghl = Number($("#" + id).attr("grid_height_limit"));
+        gwl = Number($("#" + id).attr("grid_width_limit")); 
+    }
+
+    for (let i=0; i<20; i++) {
+        for (let j=0; j<20; j++) {
+            let cell = $(element_initial + i + "_" + j);
+            $(cell).removeClass("grid_boundary");
+        }
+    }
+
+    for (let i=0; i<gwl; i++) {
+        $(element_initial + ghl + "_" + i).addClass("grid_boundary");
+    }
+    for (let i=0; i<ghl; i++) {
+        $(element_initial + i + "_" + gwl).addClass("grid_boundary");
+    }
+
+    $(element_initial + ghl + "_" + gwl).addClass("grid_boundary");
+}
+
+// assignment_part start
+
+function is_valid_cord(i, j) {
+    // console.log("height: " + grid_height_limit);
+    // console.log("width: " + grid_width_limit);
+    if (i >= 0 && i < grid_height_limit && j >= 0 && j < grid_width_limit) {
+        return true;
+    }
+    return false;
+}
+
+function get_neighbour(i, j) {
+    let neigh_di = [0, 0, 1, 1, 1, -1, -1, -1];
+    let neigh_dj = [1, -1, 1, 0, -1, 1, 0, -1];
+
+    let live = 0;
+
+    for (let n=0; n<8; n++) {
+        if (is_valid_cord(i + neigh_di[n], j + neigh_dj[n])) {
+            if ($(".cell_" + (i + neigh_di[n]) + "_" + (j + neigh_dj[n])).attr("prev_gen") == 1) {
+                live++;
+            }
+        }
+    }
+
+    return live
+}
+
+function alive(alive, neighbours_alive) {
+    if (alive) {
+        if (neighbours_alive < 2 || neighbours_alive > 3) {
+            return false;
+        }
+        return true;
+    }
+    else {
+        if (neighbours_alive == 3) {
+            return true;
+        }
+        return false;
+    }
+}
+
+function new_gen() {
+    for (let i=0; i<20; i++) {
+        for (let j=0; j<20; j++) {
+            let cell = $(".cell_" + i + "_" + j);
+            $(cell).attr("prev_gen", $(cell).attr("value"))
+            $(cell).attr("value", "0");
+            $(cell).css("background-color", "black");
+        }
+    }
+}
+
+function next_gen() {
+
+    new_gen();
+
+    for (let i=0; i<20; i++) {
+        for (let j=0; j<20; j++) {
+            let cell = $(".cell_" + i + "_" + j);
+
+            let neighbours_alive = get_neighbour(i, j);
+
+            let alive_in_next_gen = false;
+
+            if ($(cell).attr("prev_gen") == 1){
+                alive_in_next_gen = alive(true, neighbours_alive);
+            }
+            else {
+                alive_in_next_gen = alive(false, neighbours_alive);
+            }
+
+            if (alive_in_next_gen) {
+                $(cell).attr("value", "1");
+                $(cell).css("background-color", color);
+            }
+        }
+    }
+}
+
+// assignment_part end
+
+// UI part start
+
+function state_change() {
+    for (let i=0; i<20; i++) {
+        for (let j=0; j<20; j++) {
+            $(".cell_" + i + "_" + j).click(function(e){
+
+                // e.preventDefault();
+                
+                // console.log(e)
+
+                if (running == 1 || !is_valid_cord(i, j)) {
+                    // alert("please stop the simulation first !!!");
+                    return;
+                }
+
+                if ($(this).attr("value") == 0) {
+                    $(this).attr("value", "1");
+                    $(this).css("background-color", color);
+                }
+                else {
+                    $(this).attr("value", "0");
+                    $(this).css("background-color", "black");
+                }
+            }); 
+
+            $(".cell_" + i + "_" + j).mouseenter(function(e){
+
+                if ((running == 1 && e.which == 1) || !is_valid_cord(i, j)) {
+                    // alert("please stop the simulation first !!!");
+                    return;
+                }
+
+                if ((e.which == 1 && e.shiftKey) || e.which == 3) {
+                    $(this).attr("value", "0");
+                    $(this).css("background-color", "black");
+                }
+                else if (e.which == 1) {
+                    $(this).attr("value", "1");
+                    $(this).css("background-color", color);
+                }
+            });  
+
+            $(".cell_" + i + "_" + j).mouseleave(function(e){
+
+                if ((running == 1 && e.which == 1) || !is_valid_cord(i, j)) {
+                    // alert("please stop the simulation first !!!");
+                    return;
+                }
+
+                if ((e.which == 1 && e.shiftKey) || e.which == 3) {
+                    $(this).attr("value", "0");
+                    $(this).css("background-color", "black");
+                }
+                else if (e.which == 1) {
+                    $(this).attr("value", "1");
+                    $(this).css("background-color", color);
+                }
+
+                // if (e.which == 1) {
+                //     if ($(this).attr("value") == 0) {
+                //         $(this).attr("value", "1");
+                //         $(this).css("background-color", color);
+                //     }
+                //     else {
+                //         $(this).attr("value", "0");
+                //         $(this).css("background-color", "black");
+                //     }
+                // }
+            });       
+        }
+    }
+}
+
+function sustained() {
+    for (let i=0; i<20; i++) {
+        for (let j=0; j<20; j++) {
+            let prev_gen = $(".cell_"+i+"_"+j).attr("prev_gen");
+            let value = $(".cell_"+i+"_"+j).attr("value");
+            if (prev_gen != value) {
+                // console.log("prev_gen: "+i+" | "+j);
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function all_dead() {
+    for (let i=0; i<20; i++) {
+        for (let j=0; j<20; j++) {
+            let value = $(".cell_"+i+"_"+j).attr("value");
+            if (value == 1) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function bind(element_1, element_2) {
+    $(element_1).change(function(){
+        if (running == 1) {
+            $(element_1).val($(element_2).val());
+            return;
+        }  
+        // console.log("El_1:" + element_1[1]);      
+        if (element_1[1] == "h") {
+            grid_height_limit = Number($(element_1).val());
+            $(element_2).val(grid_height_limit);
+        }
+        else {
+            grid_width_limit = Number($(element_1).val());
+            $(element_2).val(grid_width_limit);
+        }
+
+        draw_grid_boundary();
+    });
+}
+
+function grid_limit_keyup(element) {
+    $("#" + element + "_" + "number").keyup(function(){
+        let limit = Number($(this).val());
+
+        if (limit<3) {
+            limit = 3;
+        }
+        if (limit>20) {
+            limit = 20;
+        }
+
+        $("#" + element + "_" + "range").val(limit);
+        $("#" + element + "_" + "number").val(limit);
+
+        draw_grid_boundary();
+    });
+}
+
+function activate_controls() {
+
+    state_change();
+
+    $("#start_btn").click(function () {
+        if (running == 1) {
+            // alert("simulation is already running !!!");
+            return;
+        }
+        else {
+            running = 1;
+            simulation_interval = setInterval(function(){
+                if (generation >= gen_limit) {
+                    clearInterval(simulation_interval);
+                    running = 0;
+                    $("#start_btn").css("background-color", "black");
+                    $("#start_btn").css("color", "aqua");
+                    $("#start_btn").css("font-weight", "normal");
+                    return;
+                }
+
+                if (sustained() || all_dead()) {
+                    clearInterval(simulation_interval);
+                    running = 0;
+                    $("#start_btn").css("background-color", "black");
+                    $("#start_btn").css("color", "aqua");
+                    $("#start_btn").css("font-weight", "normal");
+
+                    if (sustained()) {
+                        generation--;
+                        $("#gen").text(generation);
+                    }
+
+                    // let msg = "Pattern sustains at this point.";
+                    // if (all_dead()){
+                    //     msg = "Patter is dead.";
+                    // }
+                    // alert(msg);
+                }
+
+                next_gen();
+                generation++;
+                $("#gen").text(generation);
+                
+            }, 500);
+
+            $(this).css("background-color", "aqua");
+            $(this).css("color", "black");
+            $(this).css("font-weight", "bold");
+        }
+    });
+
+    $("#stop_btn").click(function () {
+
+        if (running == 1) {
+            clearInterval(simulation_interval);
+            running = 0;
+            $("#start_btn").css("background-color", "black");
+            $("#start_btn").css("color", "aqua");
+            $("#start_btn").css("font-weight", "normal");
+        }
+        // else {
+        //     alert("simulation is not running !!!");
+        // }
+    });
+
+    $("#reset_btn").click(function () {
+
+        if (running == 1) {
+            // alert("please stop the game first !!!");
+            return;
+        }
+        else {
+            for (let i=0; i<20; i++) {
+                for (let j=0; j<20; j++) {
+                    $(".cell_" + i + "_" + j).attr("value", "0");
+                    $(".cell_" + i + "_" + j).css("background-color", "black");
+                }
+            }
+            generation = 0;
+            gen_limit = 100;
+            $("#gen").text("0");
+            $("#gen_limit").val(100);
+            grid_height_limit = 20;
+            grid_width_limit = 20;
+
+            let limit_fields = ["#height_range", "#height_number", "#width_range", "#width_number"];
+            for (let i=0; i<4; i++) {
+                $(limit_fields[i]).val(20);
+            }
+
+            draw_grid_boundary();
+        }
+    });
+
+    $("#step_forward_btn").click(function () {
+        if (running) {
+            return;
+        }
+        next_gen();
+        generation++;
+        $("#gen").text(generation);
+    });
+
+    $("#step_back_btn").click(function () {
+
+        if (running || sustained()){
+            return;
+        }
+
+        for (let i=0; i<20; i++) {
+            for (let j=0; j<20; j++) {
+                let cell = $(".cell_" + i + "_" + j);
+                $(cell).attr("value", $(cell).attr("prev_gen"))
+                if ($(cell).attr("value") == 0){
+                    $(cell).css("background-color", "black");
+                }
+                else {
+                    $(cell).css("background-color", color);
+                }
+            }
+        }
+        
+        generation--;
+        $("#gen").text(generation);
+    });
+
+    $("#save_btn").click(function(){
+
+        if (running) {
+            return;
+        }
+
+        let pattern = [];
+
+        for (let i=0; i<20; i++) {
+            let row = [];
+            for (let j=0; j<20; j++) {
+                row[j] = $(".cell_" + i + "_" + j).attr("value");
+            }
+            pattern[i] = row;
+        }
+
+        let id = $(".patterns table").length;
+
+        // console.log("ID: " + id);
+
+        let table = "<table border='1' cellspacing='0' id='" + id + "' grid_height_limit='"+grid_height_limit+"' grid_width_limit="+grid_width_limit+">";
+
+        for (let i=0; i<20; i++) {
+            table+="<tr>";
+            for (let j=0; j<20; j++){
+                table += "<td class='" + id + "_" + i + "_" + j + "' value='" + pattern[i][j] + "'></td>";
+            }
+            table+="</tr>";
+        }
+
+        table += "</table>";
+
+        // console.log(table);
+
+        $(".patterns #" + (id - 1)).before(table);
+        draw_grid_boundary("on_saved", id);
+
+        $(".patterns #" + id).click(function(){
+            if (running == 1) {
+                // alert("Please stop the simulation first !!!");
+                return;
+            }
+
+            load_pattern(id);
+            generation = 0;
+            gen_limit = 100;
+            $("#gen").text("0");
+            $("#gen_limit").val(100);  
+            grid_height_limit = Number($(this).attr("grid_height_limit"));
+            grid_width_limit = Number($(this).attr("grid_width_limit"));          
+    
+            let limit_fields = ["#height_range", "#height_number", "#width_range", "#width_number"];
+            for (let i=0; i<4; i++) {
+    
+                if (limit_fields[i][1] == "h"){
+                    $(limit_fields[i]).val(grid_height_limit);
+                }
+                else {
+                    $(limit_fields[i]).val(grid_width_limit);
+                }
+            }
+            draw_grid_boundary();
+        });
+    });
+
+    $(".patterns table").click(function(){
+
+        if (running == 1) {
+            // alert("Please stop the simulation first !!!");
+            return;
+        }
+
+        let id = $(this).attr("id");
+
+        load_pattern(id);
+        generation = 0;
+        gen_limit = 100;
+        $("#gen").text("0");
+        $("#gen_limit").val(100);  
+        grid_height_limit = Number($(this).attr("grid_height_limit"));
+        grid_width_limit = Number($(this).attr("grid_width_limit"));          
+
+        let limit_fields = ["#height_range", "#height_number", "#width_range", "#width_number"];
+        for (let i=0; i<4; i++) {
+
+            if (limit_fields[i][1] == "h"){
+                $(limit_fields[i]).val(grid_height_limit);
+            }
+            else {
+                $(limit_fields[i]).val(grid_width_limit);
+            }
+        }
+
+        draw_grid_boundary();
+    });
+
+    $("#gen_limit").keyup(function(){
+
+        if (running) {
+            $(this).val(gen_limit);
+            return;
+        }
+        else {
+            gen_limit = Number($(this).val());
+        }
+
+        if (gen_limit <= 0 || gen_limit>9999) {
+            if (gen_limit <= 0) {
+                $(this).val("0");
+                gen_limit = 0;
+            }
+            else {
+                $(this).val("9999");
+                gen_limit = 9999;
+            }
+        } 
+    });
+
+    bind("#height_range", "#height_number");
+    bind("#height_number", "#height_range");
+    bind("#width_range", "#width_number");
+    bind("#width_number", "#width_range");
+
+    grid_limit_keyup("height");
+    grid_limit_keyup("width");
+}
+
+function load_visuals() {
+    let len = $(".patterns table").length;
+    for(let i = 0; i<len; i++) {
+        draw_grid_boundary("on_saved", i)
+    }
+}
+
+function load_pattern(id) {
+    for (let i=0; i<20; i++) {
+        // table+="<tr>";
+        for (let j=0; j<20; j++){
+            let value =  $("."+id+"_"+i+"_"+j).attr("value");
+            // console.log(value);
+            $(".cell_"+i+"_"+j).attr("value", value);
+            $(".cell_"+i+"_"+j).attr("prev_gen", "0");
+
+            if (value == 1) {
+                $(".cell_"+i+"_"+j).css("background-color", color);
+            }
+            else {
+                $(".cell_"+i+"_"+j).css("background-color", "black");
+            }
+        }
+    }
+}
+
+activate_controls();
+
+load_visuals();
