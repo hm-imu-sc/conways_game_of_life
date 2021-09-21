@@ -1,0 +1,154 @@
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 10px 10px black;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px 10px aqua;
+  border: solid 2px transparent;
+  border-radius: 5px;
+}
+
+* {
+  margin: 0px;
+  padding: 0px;
+  background-color: black;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  font-size: 25px;
+  color: aqua;
+  text-shadow: 0 0 10px aqua;
+  text-align: center;
+}
+
+a {
+  text-decoration: none;
+  font-size: 24px;
+}
+a:hover {
+  font-size: 22px;
+  color: #2be243;
+}
+
+.headers h1 {
+  font-size: 2em;
+}
+.headers h2 {
+  font-size: 1.5em;
+}
+.headers h3 {
+  font-size: 1.17em;
+}
+.headers h4 {
+  font-size: 0.99em;
+}
+.headers h5 {
+  font-size: 0.83em;
+}
+.headers h6 {
+  font-size: 0.67em;
+}
+
+.system .bread_cumb_link {
+  display: inline;
+}
+.system .empty_sign {
+  font-size: 35px;
+  margin: 20px 0px;
+}
+.system .empty_sign i {
+  font-size: 35px;
+}
+.system .title_left {
+  text-align: left;
+  margin-left: 5%;
+  margin-top: 50px;
+}
+.system .folders, .system .other_files, .system .system_controls {
+  border: 1px solid rgba(5, 41, 61, 0.781);
+  border-radius: 10px;
+  margin: 10px auto;
+  width: 95%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.system .folders .folder, .system .other_files .folder, .system .system_controls .folder {
+  margin: 20px;
+}
+.system .php_files {
+  border: 1px solid rgba(5, 41, 61, 0.781);
+  border-radius: 10px;
+  margin: 10px auto;
+  width: 95%;
+  text-align: left;
+}
+.system .php_files p {
+  text-align: center;
+}
+.system .php_files .php_file {
+  border: 0px solid red;
+  margin: 10px 100px;
+}
+.system .other_files .other_file {
+  margin: 20px;
+}
+.system .system_controls {
+  border: 0px;
+}
+.system .system_button {
+  margin: 15px auto;
+  width: 20%;
+  height: 50px;
+  border: 2px solid aqua;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.system .system_button:hover {
+  border-radius: 10px;
+  font-size: 22px;
+  box-shadow: 0 0 15px 1px aqua;
+  color: #2be243;
+}
+.system a {
+  display: block;
+  text-decoration: none;
+  font-size: 24px;
+  border-radius: 7px;
+}
+.system a:hover {
+  border-radius: 13px;
+  font-size: 22px;
+  color: #2be243;
+}
+
+#hide_unhide_system {
+  margin: 15px auto;
+  width: 20%;
+  height: 42px;
+  border: 0;
+  border-radius: 5px;
+  overflow: auto;
+}
+#hide_unhide_system i {
+  font-size: 35px;
+  text-shadow: 0 0 0 black;
+  transition: 500ms;
+  transform: rotate(90deg);
+}
+#hide_unhide_system i:hover {
+  color: chartreuse;
+}
+
+.project * {
+  text-align: left;
+  text-shadow: none;
+  font-weight: normal;
+}
+
+/*# sourceMappingURL=style.css.map */
