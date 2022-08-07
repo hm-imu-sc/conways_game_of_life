@@ -152,7 +152,7 @@ function add_to_log() {
     let log_len = logs.length;
     let  i = log_len - 1;
 
-    while (log_len > 20) {
+    while (log_len > 5) {
         $(logs[i--]).remove();
         log_len--;
     }
